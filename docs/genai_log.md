@@ -265,3 +265,24 @@ Did not add fuzzy retrieval, auto-correction, autocomplete, or automatic re-quer
 Ran `pytest` after implementation to validate Stage 11 tests and regression safety.
 ### What I learned:
 A small vocabulary-based suggestion layer can improve CLI usability without increasing system complexity or weakening explainability.
+
+## Entry 13
+
+### Date:
+2026-05-07
+### Tool used:
+Cursor (Codex 5.3)
+### Task:
+Implemented Stage 12 lightweight benchmarking and coverage support.
+### Prompt summary:
+Add optional benchmark tooling (`scripts/benchmark.py` + synthetic fixtures), add deterministic benchmark tests without live HTTP, add opt-in `pytest-cov` coverage support, and update Stage documentation while keeping core search/crawl/index logic unchanged.
+### AI suggestion:
+Use a small standalone script with `time.perf_counter` and `statistics.mean`, support `offline`/`existing`/`live` modes, default to offline synthetic pages, and keep coverage opt-in through `pytest --cov=src --cov-report=term-missing`.
+### What I accepted:
+Implemented benchmark helpers (`run_benchmark`, `format_terminal_report`, `write_json_report`), synthetic fixture pagination chain, benchmark tests, `.coveragerc`, and `pytest-cov` dependency addition.
+### What I changed/rejected:
+Rejected advanced benchmarking frameworks, plotting, CI workflow changes, and README edits in this stage to avoid over-engineering.
+### Manual checks performed:
+Ran `pytest` and `pytest --cov=src --cov-report=term-missing` after implementation.
+### What I learned:
+A small offline-first benchmark plus opt-in coverage reporting provides measurable performance/quality evidence for coursework marking without increasing architecture complexity.

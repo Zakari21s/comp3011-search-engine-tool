@@ -131,6 +131,6 @@ Completed (Stages 1-10):
 Planned (Stages 10-14):
 10. [Complete] Stage 10 - Add phrase search using positional index data
 11. [Complete] Stage 11 - Add query suggestions (simple edit-distance/`difflib`)
-12. [Planned] Stage 12 - Benchmarking and coverage checks
+12. [Complete] Stage 12 - Benchmarking and coverage checks
 13. [Planned] Stage 13 - README and documentation polish
 14. [Planned] Stage 14 - Final live testing and video preparation

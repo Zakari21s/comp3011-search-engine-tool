@@ -1,7 +1,7 @@
 # Implementation Summary
 
 ## Current Project Status
-Stages 1-11 are complete (tokenizer, parser, indexer, storage, core search, crawler, CLI integration, TF-IDF ranking module, ranked CLI `find` integration, phrase search with positional matching, and no-match query suggestions).
+Stages 1-12 are complete (tokenizer, parser, indexer, storage, core search, crawler, CLI integration, TF-IDF ranking module, ranked CLI `find` integration, phrase search with positional matching, no-match query suggestions, and lightweight benchmarking/coverage support).
 
 ---
 
@@ -42,7 +42,6 @@ Important decisions:
 ---
 
 # Pending Features
-- add benchmarking and coverage checks
 - complete README/documentation polish and final video preparation
 
 ---
@@ -70,7 +69,7 @@ Important decisions:
 
 # Branch Status
 Current branch:
-feature/query-suggestions
+feature/benchmarking
 ---
 
 # Stage 1 Update (Tokenizer)
@@ -179,3 +178,13 @@ feature/query-suggestions
   - `Did you mean:`
   - `- <unknown> -> <suggestion1>, <suggestion2>, ...`
 - expanded `test_search.py` and `test_main.py` with Stage 11 coverage for single-term typos, no-close-match fallback, multi-term/phrase handling, deduplication, max-suggestion limits, deterministic formatting/order, and suggestion-call path behavior
+
+---
+
+# Stage 12 Update (Benchmarking and Coverage)
+- added standalone `scripts/benchmark.py` with `run_benchmark(...)`, `format_terminal_report(...)`, and `write_json_report(...)`
+- benchmark mode support includes `offline` (default synthetic fixtures), `existing` (load existing index), and `live` (real crawl preserving 6-second politeness delay)
+- benchmark reports now include corpus counts (`pages`, `documents_indexed`, `vocabulary_size`, `total_tokens`) and timings for crawl, indexing, persistence, retrieval, phrase, ranking, and suggestions
+- added deterministic synthetic fixture support in `scripts/benchmark_fixtures.py` for no-network benchmark runs
+- added `tests/test_benchmark.py` for benchmark report structure, offline fake-session behavior, JSON writing, and terminal formatting
+- added opt-in coverage tooling with `pytest-cov` and a minimal `.coveragerc` scoped to `src/` while omitting `scripts/`, `tests/`, and `__init__.py` files
