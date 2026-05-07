@@ -181,3 +181,24 @@ Deferred interactive shell, ranking/TF-IDF, phrase search, and query suggestions
 Ran `pytest` to validate existing tests plus new CLI integration tests.
 ### What I learned:
 A thin parser + handler architecture gives strong testability and clean separation of concerns while still producing a smooth, demonstration-ready command workflow.
+
+## Entry 9
+
+### Date:
+2026-05-07
+### Tool used:
+Cursor (Codex 5.3)
+### Task:
+Implemented Stage 8 TF-IDF ranking module and ranking unit tests.
+### Prompt summary:
+Replace ranking placeholder code with a simple functional TF-IDF API (`rank_documents`) using tokenizer-based query normalization, deterministic tie-breaking, optional candidate restriction, and focused Stage 8 tests; then update implementation summary and GenAI log.
+### AI suggestion:
+Use a lightweight `RankedResult` dataclass plus small helper functions for deduplicated query normalization, normalized TF, and smoothed IDF, then score with `sum(tf * idf)` and sort by descending score then ascending doc ID.
+### What I accepted:
+Implemented module-level ranking with the specified TF-IDF formula, edge-case handling for empty/unknown queries, and deterministic ranking behavior; added a dedicated `tests/test_ranking.py` suite covering required Stage 8 scenarios.
+### What I changed/rejected:
+Did not integrate ranking into `search.py` or CLI yet, and did not add phrase scoring/suggestions/BM25 to keep Stage 8 focused, explainable, and aligned with coursework scope.
+### Manual checks performed:
+Ran `pytest` across the project after adding ranking and tests.
+### What I learned:
+A small, composable ranking module with explicit formulas and deterministic output is straightforward to explain in a short demo while still improving retrieval quality.

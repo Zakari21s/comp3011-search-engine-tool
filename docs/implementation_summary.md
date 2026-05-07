@@ -42,7 +42,7 @@ Important decisions:
 ---
 
 # Pending Features
-- TF-IDF ranking
+
 
 ---
 
@@ -69,7 +69,7 @@ Important decisions:
 
 # Branch Status
 Current branch:
-feature/cli
+feature/ranking
 
 ---
 
@@ -139,3 +139,12 @@ feature/cli
 - added user-facing handling for missing/invalid index files, empty find queries, unknown print terms, and no-match find results with consistent exit codes (`0` success, `1` expected user errors)
 - added lightweight dependency injection seams in command handlers so tests can pass fake crawler/storage/search functions without network or filesystem coupling
 - added Stage 7 unit tests in `test_cli.py` and `test_main.py` covering parser behavior, command flow wiring, and required edge-case handling
+
+---
+
+# Stage 8 Update (Ranking)
+- replaced placeholder ranking scaffold with module-level TF-IDF API `rank_documents(index, query, candidate_doc_ids=None)` in `ranking.py`
+- kept a lightweight `RankedResult` dataclass (`doc_id`, `score`) and added private helpers for query normalization, TF, and IDF to keep implementation explainable
+- ranking now uses tokenizer-normalized deduplicated query terms, ignores unknown terms, supports OR-based candidate discovery (or caller-provided candidates), and excludes non-positive scores
+- scoring uses normalized TF (`frequency / doc_length`) and smoothed IDF (`ln((N + 1)/(df + 1)) + 1`) with deterministic sorting by `(-score, doc_id)`
+- added dedicated Stage 8 tests in `test_ranking.py` for edge cases, TF/IDF effects, multi-term accumulation, candidate restriction behavior, normalization, tie-breaking, and return types
