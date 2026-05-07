@@ -286,3 +286,24 @@ Rejected advanced benchmarking frameworks, plotting, CI workflow changes, and RE
 Ran `pytest` and `pytest --cov=src --cov-report=term-missing` after implementation.
 ### What I learned:
 A small offline-first benchmark plus opt-in coverage reporting provides measurable performance/quality evidence for coursework marking without increasing architecture complexity.
+
+## Entry 14
+
+### Date:
+2026-05-07
+### Tool used:
+Cursor (Codex 5.3)
+### Task:
+Implemented Stage 13 documentation polish across README and supporting docs.
+### Prompt summary:
+Restructure and modernise README, clean stale planned wording in documentation, align claims with implemented features, and keep wording concise, professional, and truthful.
+### AI suggestion:
+Use implementation-backed documentation only: clearly describe command usage, ranking, phrase search, suggestions, testing/coverage commands, benchmarking usage, limitations, and Green AI disclosure; remove stale status references and contradictions across docs.
+### What I accepted:
+Updated `README.md`, `docs/design_notes.md`, `docs/testing_strategy.md`, and `docs/implementation_summary.md` to reflect completed Stages 1-13 and current behaviour; preserved concise documentation style and British English tone.
+### What I changed/rejected:
+Rejected adding unsupported claims (for example, unverified benchmark outcomes or capabilities not present in `src/`); avoided source-code and test changes.
+### Manual checks performed:
+Manually reviewed documentation text against implementation in `src/main.py`, `src/cli.py`, `src/search.py`, `src/ranking.py`, and `scripts/benchmark.py` to ensure consistency.
+### What I learned:
+Documentation quality improves submission credibility when feature claims are tightly aligned to observable behaviour and phrased with cautious, evidence-based language.

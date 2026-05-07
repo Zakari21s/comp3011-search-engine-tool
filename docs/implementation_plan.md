@@ -73,7 +73,6 @@ Responsible for:
 - phrase search
 - query suggestions
 - benchmarking
-- stop-word filtering
 
 ---
 
@@ -117,7 +116,7 @@ docs/genai_log.md
 
 # 7. Development Stages (Updated)
 
-Completed (Stages 1-10):
+Completed (Stages 1-13):
 1. [Complete] Stage 1 - Tokenizer foundation
 2. [Complete] Stage 2 - Parser extraction
 3. [Complete] Stage 3 - Inverted index construction
@@ -127,10 +126,10 @@ Completed (Stages 1-10):
 7. [Complete] Stage 7 - CLI command flow (`build`, `load`, `print`, `find`)
 8. [Complete] Stage 8 - TF-IDF ranking module implementation
 9. [Complete] Stage 9 - Integrate TF-IDF ranking into CLI `find` output
-
-Planned (Stages 10-14):
 10. [Complete] Stage 10 - Add phrase search using positional index data
 11. [Complete] Stage 11 - Add query suggestions (simple edit-distance/`difflib`)
 12. [Complete] Stage 12 - Benchmarking and coverage checks
-13. [Planned] Stage 13 - README and documentation polish
+13. [Complete] Stage 13 - README and documentation polish
+
+Planned:
 14. [Planned] Stage 14 - Final live testing and video preparation
