@@ -1,7 +1,7 @@
 # Implementation Summary
 
 ## Current Project Status
-Stages 1-8 are complete (tokenizer, parser, indexer, storage, core search, crawler, CLI integration, and TF-IDF ranking module).
+Stages 1-9 are complete (tokenizer, parser, indexer, storage, core search, crawler, CLI integration, TF-IDF ranking module, and ranked CLI `find` integration).
 
 ---
 
@@ -42,7 +42,6 @@ Important decisions:
 ---
 
 # Pending Features
-- integrate ranked CLI output for `find`
 - implement phrase search using positional index data
 - implement query suggestions for unknown terms
 - add benchmarking and coverage checks
@@ -73,7 +72,7 @@ Important decisions:
 
 # Branch Status
 Current branch:
-docs/update-stage-roadmap
+feature/ranked-cli
 
 ---
 
@@ -152,3 +151,12 @@ docs/update-stage-roadmap
 - ranking now uses tokenizer-normalized deduplicated query terms, ignores unknown terms, supports OR-based candidate discovery (or caller-provided candidates), and excludes non-positive scores
 - scoring uses normalized TF (`frequency / doc_length`) and smoothed IDF (`ln((N + 1)/(df + 1)) + 1`) with deterministic sorting by `(-score, doc_id)`
 - added dedicated Stage 8 tests in `test_ranking.py` for edge cases, TF/IDF effects, multi-term accumulation, candidate restriction behavior, normalization, tie-breaking, and return types
+
+---
+
+# Stage 9 Update (Ranked CLI Find)
+- updated `main.py` `handle_find(...)` to compose Stage 5 candidate retrieval (`find_documents`) with Stage 8 ranking (`rank_documents`) without changing module responsibilities
+- preserved AND semantics by passing candidate document IDs from `find_documents(...)` into `rank_documents(..., candidate_doc_ids=...)`
+- changed CLI find output to ranked format: `Matching documents (ranked):` followed by `- <doc_id>  score=<tfidf>` with four decimal places
+- kept behavior for empty query (`exit 1`), no-match paths (`exit 0`), and existing `build`/`load`/`print` command behavior unchanged
+- expanded `test_main.py` with Stage 9 coverage for ranked output formatting, candidate handoff, no-candidate short-circuiting, empty-ranked fallback, empty-query short-circuiting, and real search+ranking composition

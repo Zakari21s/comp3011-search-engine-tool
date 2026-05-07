@@ -202,3 +202,24 @@ Did not integrate ranking into `search.py` or CLI yet, and did not add phrase sc
 Ran `pytest` across the project after adding ranking and tests.
 ### What I learned:
 A small, composable ranking module with explicit formulas and deterministic output is straightforward to explain in a short demo while still improving retrieval quality.
+
+## Entry 10
+
+### Date:
+2026-05-07
+### Tool used:
+Cursor (Codex 5.3)
+### Task:
+Implemented Stage 9 by integrating TF-IDF ranking into CLI `find` output.
+### Prompt summary:
+Wire existing `find_documents` AND candidate retrieval with `rank_documents` scoring in `main.py`, print ranked results with 4-decimal scores, preserve exit-code behavior, and add focused `test_main.py` coverage.
+### AI suggestion:
+Keep architecture unchanged by composing existing Stage 5 and Stage 8 APIs in `handle_find`, pass `candidate_doc_ids` into ranking to preserve AND semantics, and use deterministic output from ranking with simple score formatting.
+### What I accepted:
+Added `rank_documents`/`RankedResult` integration in `main.py`, introduced `SCORE_DECIMAL_PLACES = 4`, and updated tests for ranked output, dependency-injected ranking calls, no-candidate and empty-ranked fallbacks, and empty-query short-circuit behavior.
+### What I changed/rejected:
+Did not modify `search.py`, `ranking.py`, or `cli.py`, and did not add OR retrieval, phrase search, suggestions, or new CLI flags to keep Stage 9 small and explainable.
+### Manual checks performed:
+Ran `pytest` after implementation to verify Stage 9 changes against the existing suite.
+### What I learned:
+Composing retrieval and ranking at the command-handler boundary gives clearer explainability than embedding ranking deeper in search logic while still improving practical output quality.

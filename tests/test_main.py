@@ -1,4 +1,4 @@
-"""Unit tests for Stage 7 command handling in main.py."""
+"""Unit tests for command handling in main.py."""
 
 from __future__ import annotations
 
@@ -7,7 +7,9 @@ from pathlib import Path
 import pytest
 
 from indexer import InvertedIndex, Posting
+from ranking import RankedResult, rank_documents
 from main import handle_build, handle_find, handle_load, handle_print
+from search import find_documents
 
 
 def _sample_index() -> InvertedIndex:
@@ -117,39 +119,136 @@ def test_handle_print_unknown_word(capsys: pytest.CaptureFixture[str]) -> None:
     assert "No postings found for 'unknown'." in captured.out
 
 
-def test_handle_find_shows_matching_documents(capsys: pytest.CaptureFixture[str]) -> None:
-    """Find should list matching documents in deterministic order."""
+def test_handle_find_outputs_ranked_results_with_scores(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Find should print ranked documents with four-decimal TF-IDF scores."""
     index = _sample_index()
+    ranking_called_with: dict[str, object] = {}
 
     def fake_find(_: InvertedIndex, query: str) -> list[str]:
         assert query == "life wisdom"
-        return ["doc_z", "doc_a"]
+        return ["doc_a", "doc_z"]
+
+    def fake_rank(
+        _: InvertedIndex,
+        query: str,
+        candidate_doc_ids: list[str] | None = None,
+    ) -> list[RankedResult]:
+        ranking_called_with["query"] = query
+        ranking_called_with["candidate_doc_ids"] = candidate_doc_ids
+        return [
+            RankedResult(doc_id="doc_z", score=0.42),
+            RankedResult(doc_id="doc_a", score=0.1),
+        ]
 
     exit_code, returned_index = handle_find(
         "life wisdom",
         current_index=index,
         find_documents_fn=fake_find,
+        rank_documents_fn=fake_rank,
     )
     captured = capsys.readouterr()
 
     assert exit_code == 0
     assert returned_index is index
-    assert "Matching documents:" in captured.out
-    assert "- doc_a" in captured.out
-    assert "- doc_z" in captured.out
+    assert ranking_called_with["query"] == "life wisdom"
+    assert ranking_called_with["candidate_doc_ids"] == ["doc_a", "doc_z"]
+    assert "Matching documents (ranked):" in captured.out
+    assert "- doc_z  score=0.4200" in captured.out
+    assert "- doc_a  score=0.1000" in captured.out
 
 
-def test_handle_find_no_results(capsys: pytest.CaptureFixture[str]) -> None:
-    """Find should handle no-match queries without error."""
+def test_handle_find_no_candidates_does_not_call_ranking(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """When AND candidate retrieval is empty, ranking should not run."""
     index = _sample_index()
+    ranking_call_count = 0
 
     def fake_find(_: InvertedIndex, __: str) -> list[str]:
+        return []
+
+    def fake_rank(
+        _: InvertedIndex,
+        __: str,
+        candidate_doc_ids: list[str] | None = None,
+    ) -> list[RankedResult]:
+        nonlocal ranking_call_count
+        ranking_call_count += 1
         return []
 
     exit_code, returned_index = handle_find(
         "life unknown",
         current_index=index,
         find_documents_fn=fake_find,
+        rank_documents_fn=fake_rank,
+    )
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert returned_index is index
+    assert ranking_call_count == 0
+    assert "No matching documents found." in captured.out
+
+
+def test_handle_find_empty_query_returns_error(capsys: pytest.CaptureFixture[str]) -> None:
+    """Find should return user error for empty/whitespace query."""
+    index = _sample_index()
+    search_call_count = 0
+    ranking_call_count = 0
+
+    def fake_find(_: InvertedIndex, __: str) -> list[str]:
+        nonlocal search_call_count
+        search_call_count += 1
+        return ["doc_a"]
+
+    def fake_rank(
+        _: InvertedIndex,
+        __: str,
+        candidate_doc_ids: list[str] | None = None,
+    ) -> list[RankedResult]:
+        nonlocal ranking_call_count
+        ranking_call_count += 1
+        return [RankedResult(doc_id="doc_a", score=1.0)]
+
+    exit_code, returned_index = handle_find(
+        "   ",
+        current_index=index,
+        find_documents_fn=fake_find,
+        rank_documents_fn=fake_rank,
+    )
+    captured = capsys.readouterr()
+
+    assert exit_code == 1
+    assert returned_index is index
+    assert search_call_count == 0
+    assert ranking_call_count == 0
+    assert "Query cannot be empty." in captured.out
+
+
+def test_handle_find_empty_ranked_results_fallback_to_no_match(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Find should handle unexpected empty ranking output gracefully."""
+    index = _sample_index()
+
+    def fake_find(_: InvertedIndex, __: str) -> list[str]:
+        return ["doc_a"]
+
+    def fake_rank(
+        _: InvertedIndex,
+        __: str,
+        candidate_doc_ids: list[str] | None = None,
+    ) -> list[RankedResult]:
+        assert candidate_doc_ids == ["doc_a"]
+        return []
+
+    exit_code, returned_index = handle_find(
+        "life",
+        current_index=index,
+        find_documents_fn=fake_find,
+        rank_documents_fn=fake_rank,
     )
     captured = capsys.readouterr()
 
@@ -158,13 +257,35 @@ def test_handle_find_no_results(capsys: pytest.CaptureFixture[str]) -> None:
     assert "No matching documents found." in captured.out
 
 
-def test_handle_find_empty_query_returns_error(capsys: pytest.CaptureFixture[str]) -> None:
-    """Find should return user error for empty/whitespace query."""
-    index = _sample_index()
+def test_handle_find_integration_with_real_search_and_ranking(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Find should compose real AND retrieval with real TF-IDF ranking."""
+    index = InvertedIndex(
+        postings={
+            "life": {
+                "doc_a": Posting(frequency=1, positions=[0]),
+                "doc_b": Posting(frequency=3, positions=[0, 1, 2]),
+            },
+            "wisdom": {
+                "doc_a": Posting(frequency=1, positions=[1]),
+                "doc_b": Posting(frequency=1, positions=[3]),
+            },
+        },
+        doc_lengths={"doc_a": 4, "doc_b": 4},
+    )
 
-    exit_code, returned_index = handle_find("   ", current_index=index)
+    exit_code, returned_index = handle_find(
+        "life wisdom",
+        current_index=index,
+        find_documents_fn=find_documents,
+        rank_documents_fn=rank_documents,
+    )
     captured = capsys.readouterr()
+    output_lines = captured.out.strip().splitlines()
 
-    assert exit_code == 1
+    assert exit_code == 0
     assert returned_index is index
-    assert "Query cannot be empty." in captured.out
+    assert output_lines[0] == "Matching documents (ranked):"
+    assert output_lines[1].startswith("- doc_b  score=")
+    assert output_lines[2].startswith("- doc_a  score=")

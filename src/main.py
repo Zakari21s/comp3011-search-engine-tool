@@ -9,10 +9,12 @@ from cli import parse_args
 from crawler import crawl_quotes_site
 from indexer import InvertedIndex, Posting, build_index
 from parser import ParsedPage
+from ranking import RankedResult, rank_documents
 from search import find_documents, get_term_postings
 from storage import load_index, save_index
 
 DEFAULT_INDEX_PATH = Path("data/index.json")
+SCORE_DECIMAL_PLACES = 4
 
 
 def _safe_load(
@@ -117,6 +119,9 @@ def handle_find(
     index_path: Path = DEFAULT_INDEX_PATH,
     load_index_fn: Callable[[Path], InvertedIndex] = load_index,
     find_documents_fn: Callable[[InvertedIndex, str], list[str]] = find_documents,
+    rank_documents_fn: Callable[
+        [InvertedIndex, str, list[str] | None], list[RankedResult]
+    ] = rank_documents,
 ) -> tuple[int, InvertedIndex | None]:
     """Find and print matching documents for a query."""
     if not query.strip():
@@ -131,14 +136,19 @@ def handle_find(
     if index is None:
         return exit_code, None
 
-    matched_documents = sorted(find_documents_fn(index, query))
-    if not matched_documents:
+    candidate_doc_ids = find_documents_fn(index, query)
+    if not candidate_doc_ids:
         print("No matching documents found.")
         return 0, index
 
-    print("Matching documents:")
-    for doc_id in matched_documents:
-        print(f"- {doc_id}")
+    ranked_results = rank_documents_fn(index, query, candidate_doc_ids=candidate_doc_ids)
+    if not ranked_results:
+        print("No matching documents found.")
+        return 0, index
+
+    print("Matching documents (ranked):")
+    for result in ranked_results:
+        print(f"- {result.doc_id}  score={result.score:.{SCORE_DECIMAL_PLACES}f}")
     return 0, index
 
 
