@@ -248,6 +248,33 @@ def test_handle_find_phrase_no_match_returns_success_with_message(
     assert "No matching documents found." in captured.out
 
 
+def test_handle_find_no_match_prints_suggestions(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """No-match path should print informational query suggestions."""
+    index = _sample_index()
+
+    def fake_find(_: InvertedIndex, __: str) -> list[str]:
+        return []
+
+    def fake_suggest(_: InvertedIndex, __: str, ___: int) -> dict[str, list[str]]:
+        return {"freind": ["friend"]}
+
+    exit_code, _ = handle_find(
+        "freind",
+        current_index=index,
+        find_documents_fn=fake_find,
+        suggest_query_terms_fn=fake_suggest,
+    )
+    captured = capsys.readouterr()
+    output_lines = captured.out.strip().splitlines()
+
+    assert exit_code == 0
+    assert output_lines[0] == "No matching documents found."
+    assert output_lines[1] == "Did you mean:"
+    assert output_lines[2] == "- freind -> friend"
+
+
 def test_handle_find_non_quoted_query_uses_normal_find_path(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
@@ -286,6 +313,42 @@ def test_handle_find_non_quoted_query_uses_normal_find_path(
     assert phrase_calls == 0
 
 
+def test_handle_find_does_not_print_suggestions_when_ranked_results_exist(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Suggestions should not appear when retrieval and ranking succeed."""
+    index = _sample_index()
+    suggest_call_count = 0
+
+    def fake_find(_: InvertedIndex, __: str) -> list[str]:
+        return ["doc_a"]
+
+    def fake_rank(
+        _: InvertedIndex,
+        __: str,
+        candidate_doc_ids: list[str] | None = None,
+    ) -> list[RankedResult]:
+        return [RankedResult(doc_id="doc_a", score=0.1234)]
+
+    def fake_suggest(_: InvertedIndex, __: str, ___: int) -> dict[str, list[str]]:
+        nonlocal suggest_call_count
+        suggest_call_count += 1
+        return {"freind": ["friend"]}
+
+    exit_code, _ = handle_find(
+        "life",
+        current_index=index,
+        find_documents_fn=fake_find,
+        rank_documents_fn=fake_rank,
+        suggest_query_terms_fn=fake_suggest,
+    )
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert suggest_call_count == 0
+    assert "Did you mean:" not in captured.out
+
+
 def test_handle_find_mismatched_quote_falls_back_to_and_path(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
@@ -313,6 +376,35 @@ def test_handle_find_mismatched_quote_falls_back_to_and_path(
     _captured = capsys.readouterr()
     assert exit_code == 0
     assert and_calls == ['"good friends']
+
+
+def test_handle_find_phrase_no_match_can_show_suggestions(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Quoted no-match path can show phrase-token suggestions."""
+    index = _sample_index()
+
+    def fake_phrase_find(_: InvertedIndex, __: str) -> list[str]:
+        return []
+
+    def fake_suggest(_: InvertedIndex, query: str, ___: int) -> dict[str, list[str]]:
+        assert query == "gud frends"
+        return {"gud": ["good"], "frends": ["friends"]}
+
+    exit_code, _ = handle_find(
+        '"gud frends"',
+        current_index=index,
+        find_phrase_documents_fn=fake_phrase_find,
+        suggest_query_terms_fn=fake_suggest,
+    )
+    captured = capsys.readouterr()
+    output_lines = captured.out.strip().splitlines()
+
+    assert exit_code == 0
+    assert output_lines[0] == "No matching documents found."
+    assert output_lines[1] == "Did you mean:"
+    assert output_lines[2] == "- gud -> good"
+    assert output_lines[3] == "- frends -> friends"
 
 
 def test_handle_find_no_candidates_does_not_call_ranking(
@@ -346,6 +438,62 @@ def test_handle_find_no_candidates_does_not_call_ranking(
     assert returned_index is index
     assert ranking_call_count == 0
     assert "No matching documents found." in captured.out
+
+
+def test_handle_find_empty_suggestions_prints_only_no_match_message(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """When suggestion helper returns empty, only no-match line is shown."""
+    index = _sample_index()
+
+    def fake_find(_: InvertedIndex, __: str) -> list[str]:
+        return []
+
+    def fake_suggest(_: InvertedIndex, __: str, ___: int) -> dict[str, list[str]]:
+        return {}
+
+    exit_code, _ = handle_find(
+        "unknown",
+        current_index=index,
+        find_documents_fn=fake_find,
+        suggest_query_terms_fn=fake_suggest,
+    )
+    captured = capsys.readouterr()
+    output_lines = captured.out.strip().splitlines()
+
+    assert exit_code == 0
+    assert output_lines == ["No matching documents found."]
+
+
+def test_handle_find_multiple_suggestions_formatting_is_deterministic(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Multiple suggestion lines should preserve deterministic helper order."""
+    index = _sample_index()
+
+    def fake_find(_: InvertedIndex, __: str) -> list[str]:
+        return []
+
+    def fake_suggest(_: InvertedIndex, __: str, ___: int) -> dict[str, list[str]]:
+        return {
+            "freind": ["friend"],
+            "beleive": ["believe", "belief"],
+        }
+
+    exit_code, _ = handle_find(
+        "freind beleive",
+        current_index=index,
+        find_documents_fn=fake_find,
+        suggest_query_terms_fn=fake_suggest,
+    )
+    captured = capsys.readouterr()
+    output_lines = captured.out.strip().splitlines()
+
+    assert exit_code == 0
+    assert output_lines[0] == "No matching documents found."
+    assert output_lines[1] == "Did you mean:"
+    assert output_lines[2] == "- freind -> friend"
+    assert output_lines[3] == "- beleive -> believe, belief"
 
 
 def test_handle_find_empty_query_returns_error(capsys: pytest.CaptureFixture[str]) -> None:

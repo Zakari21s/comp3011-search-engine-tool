@@ -1,6 +1,7 @@
 """In-memory query processing utilities over an inverted index."""
 
 from __future__ import annotations
+import difflib
 
 from indexer import InvertedIndex, Posting
 from tokenizer import tokenize
@@ -120,4 +121,50 @@ def find_phrase_documents(index: InvertedIndex, phrase: str) -> list[str]:
         if _has_consecutive_phrase(index, phrase_terms, doc_id)
     ]
     return sorted(matching_doc_ids)
+
+
+def suggest_query_terms(
+    index: InvertedIndex,
+    query: str,
+    max_suggestions: int = 3,
+) -> dict[str, list[str]]:
+    """Suggest close known terms for unknown query tokens.
+
+    Behavior:
+    - normalizes query terms with tokenizer.tokenize
+    - considers only unknown terms against known index vocabulary
+    - deduplicates repeated unknown terms
+    - returns deterministic suggestions per unknown term
+    - uses conservative similarity cutoff for explainable precision
+    """
+    if max_suggestions <= 0:
+        return {}
+
+    known_terms = sorted(index.postings.keys())
+    if not known_terms:
+        return {}
+
+    unknown_terms: list[str] = []
+    seen_unknown_terms: set[str] = set()
+    for token in tokenize(query):
+        if token.term in index.postings or token.term in seen_unknown_terms:
+            continue
+        seen_unknown_terms.add(token.term)
+        unknown_terms.append(token.term)
+
+    if not unknown_terms:
+        return {}
+
+    suggestions: dict[str, list[str]] = {}
+    for unknown_term in unknown_terms:
+        close_matches = difflib.get_close_matches(
+            unknown_term,
+            known_terms,
+            n=max_suggestions,
+            cutoff=0.8,
+        )
+        if close_matches:
+            suggestions[unknown_term] = close_matches
+
+    return suggestions
 

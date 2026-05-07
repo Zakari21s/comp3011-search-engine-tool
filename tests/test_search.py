@@ -3,7 +3,12 @@
 from __future__ import annotations
 
 from indexer import InvertedIndex, Posting
-from search import find_documents, find_phrase_documents, get_term_postings
+from search import (
+    find_documents,
+    find_phrase_documents,
+    get_term_postings,
+    suggest_query_terms,
+)
 
 
 def _sample_index() -> InvertedIndex:
@@ -243,4 +248,67 @@ def test_find_phrase_documents_deterministic_lexical_ordering() -> None:
         doc_lengths={"doc_z": 2, "doc_m": 2, "doc_a": 2},
     )
     assert find_phrase_documents(index, "a b") == ["doc_a", "doc_m", "doc_z"]
+
+
+def test_suggest_query_terms_single_word_typo_returns_suggestion() -> None:
+    """Unknown single-word typo should suggest close known vocabulary term."""
+    index = _sample_index()
+    assert suggest_query_terms(index, "lif") == {"lif": ["life"]}
+
+
+def test_suggest_query_terms_unknown_with_no_close_match_returns_empty() -> None:
+    """Unknown term with no close vocabulary should return empty mapping."""
+    index = _sample_index()
+    assert suggest_query_terms(index, "qzxv") == {}
+
+
+def test_suggest_query_terms_multi_word_suggests_only_unknown_terms() -> None:
+    """Known terms should be skipped while unknown terms receive suggestions."""
+    index = _sample_index()
+    assert suggest_query_terms(index, "life wisdm") == {"wisdm": ["wisdom"]}
+
+
+def test_suggest_query_terms_repeated_unknown_term_is_deduplicated() -> None:
+    """Repeated unknown query term should appear only once in output."""
+    index = _sample_index()
+    assert suggest_query_terms(index, "lif lif") == {"lif": ["life"]}
+
+
+def test_suggest_query_terms_deterministic_ordering_of_unknown_terms() -> None:
+    """Suggestion map key order should follow first-seen unknown term order."""
+    index = _sample_index()
+    assert list(suggest_query_terms(index, "authr wisdm").keys()) == ["authr", "wisdm"]
+
+
+def test_suggest_query_terms_phrase_style_input_tokenizes_correctly() -> None:
+    """Quoted/punctuated phrase-like input should still normalize via tokenizer."""
+    index = _sample_index()
+    assert suggest_query_terms(index, '"LiFe, wisdm!!!"') == {"wisdm": ["wisdom"]}
+
+
+def test_suggest_query_terms_respects_max_suggestions_limit() -> None:
+    """Maximum suggestions should cap close matches per unknown term."""
+    index = InvertedIndex(
+        postings={
+            "friend": {"doc_a": Posting(frequency=1, positions=[0])},
+            "friends": {"doc_b": Posting(frequency=1, positions=[0])},
+            "fiend": {"doc_c": Posting(frequency=1, positions=[0])},
+            "fried": {"doc_d": Posting(frequency=1, positions=[0])},
+        },
+        doc_lengths={"doc_a": 1, "doc_b": 1, "doc_c": 1, "doc_d": 1},
+    )
+    suggestions = suggest_query_terms(index, "freind", max_suggestions=2)
+    assert suggestions
+    assert len(suggestions["freind"]) <= 2
+
+
+def test_suggest_query_terms_comes_only_from_known_vocabulary() -> None:
+    """Every suggestion candidate must come from index vocabulary only."""
+    index = _sample_index()
+    suggestions = suggest_query_terms(index, "lif authr")
+    known_terms = set(index.postings.keys())
+    assert suggestions
+    for matches in suggestions.values():
+        assert matches
+        assert set(matches).issubset(known_terms)
 

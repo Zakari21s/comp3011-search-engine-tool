@@ -244,3 +244,24 @@ Did not modify tokenizer/indexer/ranking/CLI parser modules, did not add new CLI
 Ran `pytest` after implementation to verify all Stage 10 behavior and regressions.
 ### What I learned:
 A positional phrase matcher can stay explainable and deterministic by reusing existing AND retrieval as a candidate filter and applying lightweight consecutive-offset checks only where needed.
+
+## Entry 12
+
+### Date:
+2026-05-07
+### Tool used:
+Cursor (Codex 5.3)
+### Task:
+Implemented Stage 11 query suggestions for unknown terms in no-match search flows.
+### Prompt summary:
+Add lightweight, explainable typo suggestions using `difflib.get_close_matches` over known index vocabulary, expose a small helper in `search.py`, print suggestions only after no-match in `main.py`, and add deterministic no-network tests.
+### AI suggestion:
+Keep suggestions informational-only and architecture-aligned by placing matching logic in `search.py` and output formatting in `main.py`, use tokenizer-normalized unknown terms only, and preserve deterministic ordering with sorted vocabulary and fixed limits/cutoff.
+### What I accepted:
+Added `suggest_query_terms(...)` in `search.py`, integrated suggestion display in `handle_find(...)` only when candidate retrieval returns no documents, and expanded `test_search.py`/`test_main.py` with Stage 11 edge-case coverage.
+### What I changed/rejected:
+Did not add fuzzy retrieval, auto-correction, autocomplete, or automatic re-query behavior; suggestions remain optional guidance only.
+### Manual checks performed:
+Ran `pytest` after implementation to validate Stage 11 tests and regression safety.
+### What I learned:
+A small vocabulary-based suggestion layer can improve CLI usability without increasing system complexity or weakening explainability.

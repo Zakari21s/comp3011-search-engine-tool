@@ -1,7 +1,7 @@
 # Implementation Summary
 
 ## Current Project Status
-Stages 1-10 are complete (tokenizer, parser, indexer, storage, core search, crawler, CLI integration, TF-IDF ranking module, ranked CLI `find` integration, and phrase search with positional matching).
+Stages 1-11 are complete (tokenizer, parser, indexer, storage, core search, crawler, CLI integration, TF-IDF ranking module, ranked CLI `find` integration, phrase search with positional matching, and no-match query suggestions).
 
 ---
 
@@ -42,7 +42,6 @@ Important decisions:
 ---
 
 # Pending Features
-- implement query suggestions for unknown terms
 - add benchmarking and coverage checks
 - complete README/documentation polish and final video preparation
 
@@ -71,8 +70,7 @@ Important decisions:
 
 # Branch Status
 Current branch:
-feature/phrase-search
-
+feature/query-suggestions
 ---
 
 # Stage 1 Update (Tokenizer)
@@ -169,3 +167,15 @@ feature/phrase-search
 - updated `main.py` `handle_find(...)` to route only fully double-quoted queries (`"..."`) to phrase search, while mismatched quotes fall back to normal AND behavior
 - preserved Stage 9 ranked output by passing phrase candidates to `rank_documents(..., candidate_doc_ids=...)` and keeping the output format/tie-breaking unchanged
 - expanded `test_search.py` and `test_main.py` with Stage 10 phrase behavior coverage (positive/negative phrase cases, repeated terms, normalization, routing, no-match behavior, and integration with real ranking)
+
+---
+
+# Stage 11 Update (Query Suggestions)
+- added public `suggest_query_terms(index, query, max_suggestions=3)` in `search.py` using tokenizer normalization, unknown-term deduplication, and vocabulary-only matching from `sorted(index.postings.keys())`
+- implemented lightweight typo suggestions with Python standard library `difflib.get_close_matches(...)` and conservative fixed cutoff (`0.8`) for explainable precision-first behavior
+- kept retrieval behavior unchanged: suggestions are informational only, never auto-rewrite queries, and never trigger automatic retry/fuzzy retrieval
+- updated `main.py` `handle_find(...)` no-match branch (AND and phrase paths) to print optional guidance:
+  - `No matching documents found.`
+  - `Did you mean:`
+  - `- <unknown> -> <suggestion1>, <suggestion2>, ...`
+- expanded `test_search.py` and `test_main.py` with Stage 11 coverage for single-term typos, no-close-match fallback, multi-term/phrase handling, deduplication, max-suggestion limits, deterministic formatting/order, and suggestion-call path behavior

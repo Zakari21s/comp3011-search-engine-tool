@@ -10,7 +10,12 @@ from crawler import crawl_quotes_site
 from indexer import InvertedIndex, Posting, build_index
 from parser import ParsedPage
 from ranking import RankedResult, rank_documents
-from search import find_documents, find_phrase_documents, get_term_postings
+from search import (
+    find_documents,
+    find_phrase_documents,
+    get_term_postings,
+    suggest_query_terms,
+)
 from storage import load_index, save_index
 
 DEFAULT_INDEX_PATH = Path("data/index.json")
@@ -120,6 +125,9 @@ def handle_find(
     load_index_fn: Callable[[Path], InvertedIndex] = load_index,
     find_documents_fn: Callable[[InvertedIndex, str], list[str]] = find_documents,
     find_phrase_documents_fn: Callable[[InvertedIndex, str], list[str]] = find_phrase_documents,
+    suggest_query_terms_fn: Callable[
+        [InvertedIndex, str, int], dict[str, list[str]]
+    ] = suggest_query_terms,
     rank_documents_fn: Callable[
         [InvertedIndex, str, list[str] | None], list[RankedResult]
     ] = rank_documents,
@@ -148,6 +156,11 @@ def handle_find(
 
     if not candidate_doc_ids:
         print("No matching documents found.")
+        suggestions = suggest_query_terms_fn(index, search_query, 3)
+        if suggestions:
+            print("Did you mean:")
+            for unknown_term, suggested_terms in suggestions.items():
+                print(f"- {unknown_term} -> {', '.join(suggested_terms)}")
         return 0, index
 
     ranked_results = rank_documents_fn(index, search_query, candidate_doc_ids=candidate_doc_ids)
