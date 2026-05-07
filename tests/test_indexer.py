@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from indexer import build_index
-from parser import ParsedPage
+from src.indexer import build_index
+from src.parser import ParsedPage
 
 
 def test_build_index_empty_input_returns_empty_structure() -> None:

@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from indexer import DocumentMetadata, InvertedIndex, Posting
-from storage import _index_to_dict, load_index, save_index
+from src.indexer import DocumentMetadata, InvertedIndex, Posting
+from src.storage import _index_to_dict, load_index, save_index
 
 
 def _sample_index() -> InvertedIndex:

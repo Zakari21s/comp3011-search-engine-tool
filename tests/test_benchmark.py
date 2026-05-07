@@ -4,15 +4,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-import sys
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SCRIPTS_PATH = PROJECT_ROOT / "scripts"
-if str(SCRIPTS_PATH) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_PATH))
-
-import benchmark
-from benchmark_fixtures import FakeSession
+from scripts import benchmark
+from scripts.benchmark_fixtures import FakeSession
 
 
 def test_run_benchmark_report_structure_offline() -> None:

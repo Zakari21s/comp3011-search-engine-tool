@@ -7,9 +7,9 @@ from dataclasses import dataclass
 import pytest
 import requests
 
-import crawler
-from crawler import crawl_quotes_site
-from parser import ParsedPage
+import src.crawler as crawler
+from src.crawler import crawl_quotes_site
+from src.parser import ParsedPage
 
 
 @dataclass(slots=True)

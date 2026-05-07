@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from indexer import InvertedIndex, Posting
-from search import (
+from src.indexer import InvertedIndex, Posting
+from src.search import (
     find_documents,
     find_phrase_documents,
     get_term_postings,

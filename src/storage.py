@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from indexer import DocumentMetadata, InvertedIndex, Posting
+from src.indexer import DocumentMetadata, InvertedIndex, Posting
 
 SCHEMA_VERSION = 1
 _REQUIRED_KEYS = ("schema_version", "postings", "doc_lengths", "doc_metadata")

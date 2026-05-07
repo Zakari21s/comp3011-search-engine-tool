@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from cli import parse_args
+from src.cli import parse_args
 
 
 def test_parse_build_command() -> None:

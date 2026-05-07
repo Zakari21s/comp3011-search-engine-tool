@@ -3,8 +3,8 @@
 from __future__ import annotations
 import difflib
 
-from indexer import InvertedIndex, Posting
-from tokenizer import tokenize
+from src.indexer import InvertedIndex, Posting
+from src.tokenizer import tokenize
 
 
 def _normalized_query_terms(query: str) -> list[str]:

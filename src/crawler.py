@@ -9,7 +9,7 @@ from typing import Callable
 from bs4 import BeautifulSoup
 import requests
 
-from parser import ParsedPage, parse_page
+from src.parser import ParsedPage, parse_page
 
 
 def _normalize_url(url: str) -> str:

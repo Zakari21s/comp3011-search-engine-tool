@@ -7,23 +7,16 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 import statistics
-import sys
 import tempfile
 import time
 from typing import Any, Callable
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SRC_PATH = PROJECT_ROOT / "src"
-if str(SRC_PATH) not in sys.path:
-    sys.path.insert(0, str(SRC_PATH))
-
-from crawler import crawl_quotes_site
-from indexer import InvertedIndex, build_index
-from ranking import rank_documents
-from search import find_documents, find_phrase_documents, suggest_query_terms
-from storage import load_index, save_index
-
-from benchmark_fixtures import FakeSession, make_pagination_fixture_chain
+from scripts.benchmark_fixtures import FakeSession, make_pagination_fixture_chain
+from src.crawler import crawl_quotes_site
+from src.indexer import InvertedIndex, build_index
+from src.ranking import rank_documents
+from src.search import find_documents, find_phrase_documents, suggest_query_terms
+from src.storage import load_index, save_index
 
 BENCHMARK_RUNS = 3
 DEFAULT_JSON_REPORT_PATH = Path("data/benchmark.json")

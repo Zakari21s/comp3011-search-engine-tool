@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from parser import ParsedPage, parse_page
+from src.parser import ParsedPage, parse_page
 
 
 def test_parse_page_extracts_quote_author_and_tags() -> None:

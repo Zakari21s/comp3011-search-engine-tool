@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Iterable
 
-from parser import ParsedPage
-from tokenizer import tokenize
+from src.parser import ParsedPage
+from src.tokenizer import tokenize
 
 
 @dataclass(slots=True)

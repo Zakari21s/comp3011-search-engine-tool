@@ -5,18 +5,18 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
-from cli import parse_args
-from crawler import crawl_quotes_site
-from indexer import InvertedIndex, Posting, build_index
-from parser import ParsedPage
-from ranking import RankedResult, rank_documents
-from search import (
+from src.cli import parse_args
+from src.crawler import crawl_quotes_site
+from src.indexer import InvertedIndex, Posting, build_index
+from src.parser import ParsedPage
+from src.ranking import RankedResult, rank_documents
+from src.search import (
     find_documents,
     find_phrase_documents,
     get_term_postings,
     suggest_query_terms,
 )
-from storage import load_index, save_index
+from src.storage import load_index, save_index
 
 DEFAULT_INDEX_PATH = Path("data/index.json")
 SCORE_DECIMAL_PLACES = 4

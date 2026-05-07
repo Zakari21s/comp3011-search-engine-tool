@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from tokenizer import Token, tokenize
+from src.tokenizer import Token, tokenize
 
 
 def test_tokenize_lowercase_handling() -> None:

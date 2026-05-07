@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from indexer import InvertedIndex, Posting
-from ranking import RankedResult, rank_documents
+from src.indexer import InvertedIndex, Posting
+from src.ranking import RankedResult, rank_documents
 
 
 def test_empty_index_returns_empty_results() -> None:

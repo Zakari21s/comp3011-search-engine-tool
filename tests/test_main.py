@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from indexer import InvertedIndex, Posting
-from ranking import RankedResult, rank_documents
-from main import handle_build, handle_find, handle_load, handle_print
-from search import find_documents, find_phrase_documents
+from src.indexer import InvertedIndex, Posting
+from src.main import handle_build, handle_find, handle_load, handle_print
+from src.ranking import RankedResult, rank_documents
+from src.search import find_documents, find_phrase_documents
 
 
 def _sample_index() -> InvertedIndex:

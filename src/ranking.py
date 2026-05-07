@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 import math
 
-from indexer import InvertedIndex
-from tokenizer import tokenize
+from src.indexer import InvertedIndex
+from src.tokenizer import tokenize
 
 
 @dataclass(slots=True)
