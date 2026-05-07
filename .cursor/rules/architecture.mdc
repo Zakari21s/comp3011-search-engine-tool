@@ -1,0 +1,19 @@
+---
+alwaysApply: true
+---
+Always maintain clean separation of concerns.
+
+crawler.py:
+- handles HTTP requests and crawling
+
+parser.py:
+- extracts page content
+
+tokenizer.py:
+- normalises text
+
+indexer.py:
+- builds inverted index
+
+search.py:
+- handles queries and ranking

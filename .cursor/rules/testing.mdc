@@ -1,0 +1,12 @@
+---
+alwaysApply: true
+---
+All major functionality should include tests.
+
+Focus on:
+- unit tests
+- integration tests
+- edge cases
+- mocked HTTP requests
+
+Target >85% coverage.

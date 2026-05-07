@@ -1,0 +1,11 @@
+---
+alwaysApply: true
+---
+This is a Green AI coursework.
+
+All AI-generated code must:
+- be explainable
+- be tested
+- be critically evaluated
+
+Mention limitations and assumptions whenever generating code.

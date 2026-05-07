@@ -1,0 +1,68 @@
+---
+description: Rules for COMP3011 Coursework 2 Search Engine Tool
+globs:
+  - "**/*.py"
+  - "**/*.md"
+alwaysApply: true
+---
+
+This project is an individual COMP3011 Coursework 2 submission.
+
+Assessment target:
+Outstanding mark, 80–100.
+
+Core required functionality:
+- Crawl https://quotes.toscrape.com/
+- Respect 6-second politeness delay between live requests.
+- Build an inverted index.
+- Store word frequency and word positions per page.
+- Save and load index from file system.
+- Provide CLI commands: build, load, print, find.
+- Support single-word and multi-word queries.
+- Handle edge cases gracefully.
+
+Outstanding features to support:
+- TF-IDF ranking.
+- Phrase search using word positions.
+- Query suggestions for unknown words.
+- Benchmarking for build/search time.
+- Strong test coverage above 85%.
+- Clean README and documented design rationale.
+
+Architecture expectations:
+- crawler.py handles fetching pages and following links.
+- parser.py extracts meaningful page content.
+- tokenizer.py normalises text into tokens.
+- indexer.py builds the inverted index.
+- storage.py saves and loads index files.
+- search.py handles query processing.
+- ranking.py handles TF-IDF or scoring logic.
+- cli.py handles command-line interaction.
+- main.py starts the shell.
+
+Testing expectations:
+- Mock network requests where possible.
+- Do not make live network calls in most tests.
+- Test crawler behaviour separately from parser/indexer logic.
+- Test empty queries, missing index file, unknown words, punctuation, case-insensitivity, multi-word search, and phrase search.
+- Add integration tests for build/load/print/find behaviour.
+
+Code quality expectations:
+- Use type hints.
+- Use docstrings.
+- Keep functions short.
+- Avoid duplicated logic.
+- Return clear errors instead of crashing.
+- Avoid hardcoded paths except through constants/config.
+- Use pathlib for file paths.
+- Use logging or clear CLI messages where appropriate.
+
+AI-use expectation:
+Every major AI-assisted design or debugging step should be recorded in docs/genai_log.md with:
+- Date
+- Tool used
+- Prompt summary
+- AI suggestion
+- What I accepted
+- What I changed or rejected
+- What I learned

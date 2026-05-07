@@ -1,0 +1,14 @@
+---
+alwaysApply: true
+---
+Use:
+- type hints
+- docstrings
+- pathlib
+- PEP8
+- meaningful names
+
+Avoid:
+- long functions
+- duplicated logic
+- magic numbers
