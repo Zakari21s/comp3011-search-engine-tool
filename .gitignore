@@ -21,3 +21,7 @@ dist/
 .idea/
 .vscode/
 
+# Local generated data
+data/index.json
+data/benchmark.json
+

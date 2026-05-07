@@ -102,7 +102,7 @@ The suite includes unit tests for core modules plus command-handler integration-
 Run benchmark script:
 
 ```bash
-python scripts/benchmark.py --mode offline --output both
+python -m scripts.benchmark --mode offline --output terminal
 ```
 
 Useful modes:
@@ -112,6 +112,20 @@ Useful modes:
 
 JSON benchmark reports can be written with `--json-path`.
 Benchmarking is optional and intended for evaluation rather than correctness testing.
+
+## Final Demo Commands
+
+```bash
+pytest
+pytest --cov=src --cov-report=term-missing
+python -m src.main build
+python -m src.main load
+python -m src.main print life
+python -m src.main find life value
+python -m src.main find '"to be"'
+python -m src.main find freind
+python -m scripts.benchmark --mode offline --output terminal
+```
 
 ## Limitations and Assumptions
 
