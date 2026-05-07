@@ -34,3 +34,24 @@ No full feature logic was implemented yet to keep scope appropriate for initial 
 Reviewed generated structure and ran lint diagnostics on `src` and `tests` (no linter issues found). Attempted to run tests; `pytest` command is not yet installed in the active environment.
 ### What I learned:
 A clean, explainable architecture from day one makes it easier to justify design decisions and scale tests toward outstanding-mark criteria.
+
+## Entry 2
+
+### Date:
+2026-05-07
+### Tool used:
+Cursor (Codex 5.3)
+### Task:
+Implemented Stage 1 tokenizer module and tokenizer unit tests.
+### Prompt summary:
+Implement only `tokenizer.py` with a lightweight `Token` dataclass and `tokenize(text: str) -> list[Token]`, then add tests for normalization, punctuation, spacing, positions, and numeric handling.
+### AI suggestion:
+Use a simple regex-based tokenizer with lowercase normalization, punctuation as separators, 0-based order positions, and exclusion of pure numeric tokens; cover edge cases with focused pytest tests.
+### What I accepted:
+Dataclass-based token representation, single public tokenizer function, and nine unit tests covering required Stage 1 behaviors.
+### What I changed/rejected:
+Kept implementation intentionally minimal (no stemming/stop-word filtering) for explainability and coursework scope.
+### Manual checks performed:
+Ran `pytest` to verify tokenizer tests and existing placeholder tests pass.
+### What I learned:
+Order-based token positions keep phrase-search readiness while preserving a straightforward implementation suitable for demonstration.
