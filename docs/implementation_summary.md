@@ -42,8 +42,12 @@ Important decisions:
 ---
 
 # Pending Features
-- inverted index builder
 - persistence layer
+
+- search logic
+
+- crawler integration
+
 - TF-IDF ranking
 
 ---
@@ -71,7 +75,7 @@ Important decisions:
 
 # Branch Status
 Current branch:
-feature/tokenizer
+feature/indexer
 
 ---
 
@@ -91,3 +95,13 @@ feature/tokenizer
 - `search_text` is built in deterministic quote-level order: quote text -> author -> tags
 - added defensive handling for empty/malformed HTML and missing fields without crashing
 - normalized whitespace to improve index consistency and test determinism
+
+---
+
+# Stage 3 Update (Indexer)
+- replaced placeholder indexer with dataclass-based in-memory model: `Posting`, `DocumentMetadata`, and `InvertedIndex`
+- implemented public API `build_index(pages: Iterable[ParsedPage]) -> InvertedIndex`
+- indexing now tokenizes `page.search_text` via `tokenize(...)`, storing per-term per-document frequency and token positions
+- stores per-document length and metadata for all unique documents, including empty-content pages
+- applies deterministic document IDs (`page.url` when present, otherwise `doc_0`, `doc_1`, ...) and first-write-wins for duplicate URLs
+- added focused Stage 3 tests for empty input, postings correctness, repeated terms, multi-document terms, empty pages, duplicate URLs, fallback IDs, tokenizer integration, and metadata retention

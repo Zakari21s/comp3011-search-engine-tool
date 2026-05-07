@@ -76,3 +76,24 @@ Did not add next-page extraction or nested quote models to avoid blurring crawle
 Ran `pytest` to verify parser tests and existing test suite behavior.
 ### What I learned:
 Structured extraction gives cleaner retrieval-ready text than full-page scraping while remaining simple enough to justify in the coursework demonstration.
+
+## Entry 4
+
+### Date:
+2026-05-07
+### Tool used:
+Cursor (Codex 5.3)
+### Task:
+Implemented Stage 3 in-memory indexer and Stage 3 unit tests.
+### Prompt summary:
+Implement only `indexer.py` to build an in-memory inverted index from `ParsedPage` objects using tokenizer output, with per-term frequencies and positions, per-document metadata and lengths, deterministic fallback IDs, and first-write-wins duplicate URL handling.
+### AI suggestion:
+Use small dataclasses for `Posting`, `DocumentMetadata`, and `InvertedIndex`, keep one public `build_index(...)` function, and add focused tests for indexing correctness, edge cases, and tokenizer integration.
+### What I accepted:
+Dataclass-based index structures, deterministic missing-URL IDs (`doc_n`), first-write-wins duplicate URL policy, and a dedicated `test_indexer.py` suite covering required Stage 3 scenarios.
+### What I changed/rejected:
+Did not add ranking, storage serialization, crawler coupling, or query logic to keep Stage 3 scoped, explainable, and aligned with separation-of-concerns rules.
+### Manual checks performed:
+Ran `pytest` to verify Stage 3 tests and existing suite behavior.
+### What I learned:
+A dictionary-backed inverted index with lightweight dataclasses is simple to explain, easy to test, and provides the exact signals needed for later search, phrase matching, and TF-IDF stages.
