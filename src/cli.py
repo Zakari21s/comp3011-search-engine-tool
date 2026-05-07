@@ -1,4 +1,4 @@
-"""Command-line interface helpers for search engine actions."""
+"""Argument parsing utilities for search engine CLI commands."""
 
 from __future__ import annotations
 
@@ -6,17 +6,22 @@ from argparse import ArgumentParser, Namespace
 
 
 def build_parser() -> ArgumentParser:
-    """Create and return the root CLI parser."""
+    """Create and return the root argparse parser."""
     parser = ArgumentParser(description="COMP3011 Search Engine Tool")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # TODO: Add detailed options for each command as implementation grows.
     subparsers.add_parser("build", help="Crawl pages and build an index")
     subparsers.add_parser("load", help="Load an index from disk")
-    subparsers.add_parser("print", help="Print index statistics/content")
+    print_parser = subparsers.add_parser("print", help="Print postings for one word")
+    print_parser.add_argument("word", type=str, help="Word to look up in the index")
 
-    find_parser = subparsers.add_parser("find", help="Search for a query")
-    find_parser.add_argument("query", type=str, help="Query string to search")
+    find_parser = subparsers.add_parser("find", help="Find documents matching a query")
+    find_parser.add_argument(
+        "query_terms",
+        nargs="+",
+        type=str,
+        help="One or more query terms",
+    )
 
     return parser
 

@@ -69,7 +69,7 @@ Important decisions:
 
 # Branch Status
 Current branch:
-feature/crawler
+feature/cli
 
 ---
 
@@ -129,3 +129,13 @@ feature/crawler
 - integrated parser handoff via `parse_page(response.text, url=current_url)` so crawler output is ready for `build_index(...)`
 - implemented coursework politeness enforcement with default 6-second delay between live requests using `time.monotonic()` and `time.sleep(...)`, while allowing `delay_seconds=0` for tests
 - added dedicated mocked crawler tests for pagination flow, deduplication, same-host behavior, non-200/exception handling, politeness timing behavior, and parser integration
+
+---
+
+# Stage 7 Update (CLI Integration)
+- implemented argparse command parsing in `cli.py` for `build`, `load`, `print <word>`, and `find <query terms...>` while keeping parsing separate from command logic
+- implemented `main.py` command handlers that connect existing Stage 1-6 APIs: `build` (crawl -> index -> save), `load`, `print`, and `find`
+- added default index persistence path `data/index.json` using `pathlib.Path` and deterministic output ordering for postings and find results
+- added user-facing handling for missing/invalid index files, empty find queries, unknown print terms, and no-match find results with consistent exit codes (`0` success, `1` expected user errors)
+- added lightweight dependency injection seams in command handlers so tests can pass fake crawler/storage/search functions without network or filesystem coupling
+- added Stage 7 unit tests in `test_cli.py` and `test_main.py` covering parser behavior, command flow wiring, and required edge-case handling

@@ -160,3 +160,24 @@ Did not add retries, robots.txt handling, concurrency, or crawler-specific resul
 Ran `pytest` after implementation to verify crawler tests and full suite behavior.
 ### What I learned:
 Keeping crawler logic transport-focused and parser/indexer boundaries explicit makes the build pipeline easy to explain while still supporting robust, testable crawling behavior.
+
+## Entry 8
+
+### Date:
+2026-05-07
+### Tool used:
+Cursor (Codex 5.3)
+### Task:
+Implemented Stage 7 CLI integration (`build`, `load`, `print`, `find`) and Stage 7 unit tests.
+### Prompt summary:
+Wire existing crawler/indexer/storage/search APIs through `cli.py` and `main.py` with deterministic output, user-friendly error handling, typed dependency injection for testability, and no interactive shell yet.
+### AI suggestion:
+Keep `cli.py` parser-only, keep command execution in `main.py`, use `data/index.json` as default path, map expected user errors to exit code `1`, and test command handlers with injected fake functions to avoid live network requests.
+### What I accepted:
+Argparse subcommands for required coursework commands, handler-based orchestration in `main.py`, deterministic sorted output for postings/find results, explicit edge-case messaging, and dedicated `test_cli.py`/`test_main.py`.
+### What I changed/rejected:
+Deferred interactive shell, ranking/TF-IDF, phrase search, and query suggestions to later stages to keep Stage 7 focused and explainable.
+### Manual checks performed:
+Ran `pytest` to validate existing tests plus new CLI integration tests.
+### What I learned:
+A thin parser + handler architecture gives strong testability and clean separation of concerns while still producing a smooth, demonstration-ready command workflow.
