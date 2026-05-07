@@ -25,12 +25,24 @@ Build a compact, explainable search engine that is easy to demo in a 5-minute co
 
 ## Incremental Development Plan
 
-1. Implement crawl + parse with mocked network tests.
-2. Implement tokenizer + indexer with edge-case tests.
-3. Implement storage with file-format validation tests.
-4. Implement search (single, multi-word, phrase) + ranking.
-5. Wire CLI commands and add integration tests.
-6. Add benchmarks and refine README/video narrative.
+1. [Complete] Stage 1 - Tokenizer foundation.
+2. [Complete] Stage 2 - Parser extraction.
+3. [Complete] Stage 3 - Inverted index construction.
+4. [Complete] Stage 4 - Index storage (save/load).
+5. [Complete] Stage 5 - Core search logic (single and multi-word).
+6. [Complete] Stage 6 - Crawler implementation with politeness delay.
+7. [Complete] Stage 7 - CLI command integration (`build`, `load`, `print`, `find`).
+8. [Complete] Stage 8 - TF-IDF ranking module implementation.
+9. [Planned] Stage 9 - Integrate ranking into CLI `find` output.
+10. [Planned] Stage 10 - Phrase search using positional index data.
+11. [Planned] Stage 11 - Query suggestions using simple edit-distance/`difflib`.
+12. [Planned] Stage 12 - Benchmarking and coverage checks.
+13. [Planned] Stage 13 - README and documentation polish.
+14. [Planned] Stage 14 - Final live testing and video preparation.
+
+Notes:
+- Ranking logic is implemented in `ranking.py` but not yet wired into CLI `find` output.
+- Phrase search and query suggestions are treated as advanced but explainable coursework features.
 
 ## Assumptions and Constraints
 

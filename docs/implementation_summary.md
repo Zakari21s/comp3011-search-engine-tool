@@ -1,7 +1,7 @@
 # Implementation Summary
 
 ## Current Project Status
-Short overview of completed implementation stages.
+Stages 1-8 are complete (tokenizer, parser, indexer, storage, core search, crawler, CLI integration, and TF-IDF ranking module).
 
 ---
 
@@ -42,7 +42,11 @@ Important decisions:
 ---
 
 # Pending Features
-
+- integrate ranked CLI output for `find`
+- implement phrase search using positional index data
+- implement query suggestions for unknown terms
+- add benchmarking and coverage checks
+- complete README/documentation polish and final video preparation
 
 ---
 
@@ -69,7 +73,7 @@ Important decisions:
 
 # Branch Status
 Current branch:
-feature/ranking
+docs/update-stage-roadmap
 
 ---
 

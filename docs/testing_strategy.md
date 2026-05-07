@@ -15,11 +15,13 @@ Achieve strong confidence and target >85% coverage through a balanced test suite
 - **Integration tests**
   - Build/load/print/find command flows
   - End-to-end pipeline with mocked crawl inputs
+  - Planned: ranked CLI `find` output flow (ordering + score visibility)
 
 - **Edge-case tests**
   - Empty queries
   - Unknown words
-  - Phrase search misses/hits
+  - Planned: phrase search misses/hits
+  - Planned: query suggestions for near-miss/unknown terms
   - Punctuation and case-insensitivity
   - Missing index file or invalid index schema
 
@@ -34,5 +36,6 @@ Achieve strong confidence and target >85% coverage through a balanced test suite
 - Start with smoke tests for scaffold integrity.
 - Expand tests alongside each module implementation.
 - Run `pytest -q` locally before each commit.
-- Add coverage tooling in a later iteration once core logic exists.
+- Planned: benchmark helper/script checks for build/search timing output.
+- Planned: coverage reporting (`pytest --cov`) and threshold verification.
 
