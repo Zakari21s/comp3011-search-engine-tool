@@ -223,3 +223,24 @@ Did not modify `search.py`, `ranking.py`, or `cli.py`, and did not add OR retrie
 Ran `pytest` after implementation to verify Stage 9 changes against the existing suite.
 ### What I learned:
 Composing retrieval and ranking at the command-handler boundary gives clearer explainability than embedding ranking deeper in search logic while still improving practical output quality.
+
+## Entry 11
+
+### Date:
+2026-05-07
+### Tool used:
+Cursor (Codex 5.3)
+### Task:
+Implemented Stage 10 phrase search using positional index data and integrated phrase routing into ranked CLI `find`.
+### Prompt summary:
+Add `find_phrase_documents` in `search.py` using `Posting.positions` for consecutive-term matching, detect only fully quoted phrases in `main.py`, preserve existing AND and TF-IDF behavior for non-phrase queries, and add comprehensive no-network tests.
+### AI suggestion:
+Keep phrase retrieval in `search.py` as a two-step pipeline (AND candidate filter, then positional offset validation), route quoted queries in `main.py` to phrase retrieval while passing candidate docs into existing ranker, and maintain deterministic ordering and output formatting.
+### What I accepted:
+Added a small typed phrase-search API (`find_phrase_documents` + `_has_consecutive_phrase`), integrated quoted-query routing in `handle_find`, and expanded `test_search.py`/`test_main.py` with phrase matching, routing, edge-case, and integration coverage.
+### What I changed/rejected:
+Did not modify tokenizer/indexer/ranking/CLI parser modules, did not add new CLI flags or query suggestions, and kept quote detection intentionally simple (only starts+ends with `\"`).
+### Manual checks performed:
+Ran `pytest` after implementation to verify all Stage 10 behavior and regressions.
+### What I learned:
+A positional phrase matcher can stay explainable and deterministic by reusing existing AND retrieval as a candidate filter and applying lightweight consecutive-offset checks only where needed.

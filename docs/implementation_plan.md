@@ -117,7 +117,7 @@ docs/genai_log.md
 
 # 7. Development Stages (Updated)
 
-Completed (Stages 1-9):
+Completed (Stages 1-10):
 1. [Complete] Stage 1 - Tokenizer foundation
 2. [Complete] Stage 2 - Parser extraction
 3. [Complete] Stage 3 - Inverted index construction
@@ -129,7 +129,7 @@ Completed (Stages 1-9):
 9. [Complete] Stage 9 - Integrate TF-IDF ranking into CLI `find` output
 
 Planned (Stages 10-14):
-10. [Planned] Stage 10 - Add phrase search using positional index data
+10. [Complete] Stage 10 - Add phrase search using positional index data
 11. [Planned] Stage 11 - Add query suggestions (simple edit-distance/`difflib`)
 12. [Planned] Stage 12 - Benchmarking and coverage checks
 13. [Planned] Stage 13 - README and documentation polish

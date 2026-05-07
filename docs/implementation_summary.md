@@ -1,7 +1,7 @@
 # Implementation Summary
 
 ## Current Project Status
-Stages 1-9 are complete (tokenizer, parser, indexer, storage, core search, crawler, CLI integration, TF-IDF ranking module, and ranked CLI `find` integration).
+Stages 1-10 are complete (tokenizer, parser, indexer, storage, core search, crawler, CLI integration, TF-IDF ranking module, ranked CLI `find` integration, and phrase search with positional matching).
 
 ---
 
@@ -42,7 +42,6 @@ Important decisions:
 ---
 
 # Pending Features
-- implement phrase search using positional index data
 - implement query suggestions for unknown terms
 - add benchmarking and coverage checks
 - complete README/documentation polish and final video preparation
@@ -72,7 +71,7 @@ Important decisions:
 
 # Branch Status
 Current branch:
-feature/ranked-cli
+feature/phrase-search
 
 ---
 
@@ -160,3 +159,13 @@ feature/ranked-cli
 - changed CLI find output to ranked format: `Matching documents (ranked):` followed by `- <doc_id>  score=<tfidf>` with four decimal places
 - kept behavior for empty query (`exit 1`), no-match paths (`exit 0`), and existing `build`/`load`/`print` command behavior unchanged
 - expanded `test_main.py` with Stage 9 coverage for ranked output formatting, candidate handoff, no-candidate short-circuiting, empty-ranked fallback, empty-query short-circuiting, and real search+ranking composition
+
+---
+
+# Stage 10 Update (Phrase Search)
+- added positional phrase retrieval in `search.py` through `find_phrase_documents(index, phrase)` and private helper `_has_consecutive_phrase(...)`
+- phrase retrieval uses tokenizer normalization without deduplicating terms, so repeated-term phrases like `no no no` require true consecutive offsets
+- phrase matching pipeline remains explainable and small: first reuse existing AND candidate filtering (`find_documents`), then apply positional offset checks only to candidate documents
+- updated `main.py` `handle_find(...)` to route only fully double-quoted queries (`"..."`) to phrase search, while mismatched quotes fall back to normal AND behavior
+- preserved Stage 9 ranked output by passing phrase candidates to `rank_documents(..., candidate_doc_ids=...)` and keeping the output format/tie-breaking unchanged
+- expanded `test_search.py` and `test_main.py` with Stage 10 phrase behavior coverage (positive/negative phrase cases, repeated terms, normalization, routing, no-match behavior, and integration with real ranking)

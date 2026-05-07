@@ -10,7 +10,7 @@ from crawler import crawl_quotes_site
 from indexer import InvertedIndex, Posting, build_index
 from parser import ParsedPage
 from ranking import RankedResult, rank_documents
-from search import find_documents, get_term_postings
+from search import find_documents, find_phrase_documents, get_term_postings
 from storage import load_index, save_index
 
 DEFAULT_INDEX_PATH = Path("data/index.json")
@@ -119,6 +119,7 @@ def handle_find(
     index_path: Path = DEFAULT_INDEX_PATH,
     load_index_fn: Callable[[Path], InvertedIndex] = load_index,
     find_documents_fn: Callable[[InvertedIndex, str], list[str]] = find_documents,
+    find_phrase_documents_fn: Callable[[InvertedIndex, str], list[str]] = find_phrase_documents,
     rank_documents_fn: Callable[
         [InvertedIndex, str, list[str] | None], list[RankedResult]
     ] = rank_documents,
@@ -136,12 +137,20 @@ def handle_find(
     if index is None:
         return exit_code, None
 
-    candidate_doc_ids = find_documents_fn(index, query)
+    is_phrase_query = query.startswith('"') and query.endswith('"') and len(query) >= 2
+    if is_phrase_query:
+        inner_phrase = query[1:-1]
+        search_query = inner_phrase
+        candidate_doc_ids = find_phrase_documents_fn(index, inner_phrase)
+    else:
+        search_query = query
+        candidate_doc_ids = find_documents_fn(index, query)
+
     if not candidate_doc_ids:
         print("No matching documents found.")
         return 0, index
 
-    ranked_results = rank_documents_fn(index, query, candidate_doc_ids=candidate_doc_ids)
+    ranked_results = rank_documents_fn(index, search_query, candidate_doc_ids=candidate_doc_ids)
     if not ranked_results:
         print("No matching documents found.")
         return 0, index

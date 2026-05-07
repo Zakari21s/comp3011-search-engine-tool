@@ -34,7 +34,7 @@ Build a compact, explainable search engine that is easy to demo in a 5-minute co
 7. [Complete] Stage 7 - CLI command integration (`build`, `load`, `print`, `find`).
 8. [Complete] Stage 8 - TF-IDF ranking module implementation.
 9. [Complete] Stage 9 - Integrate ranking into CLI `find` output.
-10. [Planned] Stage 10 - Phrase search using positional index data.
+10. [Complete] Stage 10 - Phrase search using positional index data.
 11. [Planned] Stage 11 - Query suggestions using simple edit-distance/`difflib`.
 12. [Planned] Stage 12 - Benchmarking and coverage checks.
 13. [Planned] Stage 13 - README and documentation polish.

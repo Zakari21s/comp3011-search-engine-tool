@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from indexer import InvertedIndex, Posting
-from search import find_documents, get_term_postings
+from search import find_documents, find_phrase_documents, get_term_postings
 
 
 def _sample_index() -> InvertedIndex:
@@ -116,4 +116,131 @@ def test_deterministic_ordering_stable_despite_insertion_order() -> None:
         }
     )
     assert find_documents(index, "term") == ["doc_a", "doc_m", "doc_z"]
+
+
+def test_find_phrase_documents_two_word_positive_case() -> None:
+    """Two-word phrase should match when positions are consecutive."""
+    index = InvertedIndex(
+        postings={
+            "good": {"doc_a": Posting(frequency=1, positions=[0])},
+            "friends": {"doc_a": Posting(frequency=1, positions=[1])},
+        },
+        doc_lengths={"doc_a": 2},
+    )
+    assert find_phrase_documents(index, "good friends") == ["doc_a"]
+
+
+def test_find_phrase_documents_two_word_non_consecutive_negative_case() -> None:
+    """Two-word phrase should fail when terms are non-consecutive."""
+    index = InvertedIndex(
+        postings={
+            "good": {"doc_a": Posting(frequency=1, positions=[0])},
+            "friends": {"doc_a": Posting(frequency=1, positions=[2])},
+        },
+        doc_lengths={"doc_a": 3},
+    )
+    assert find_phrase_documents(index, "good friends") == []
+
+
+def test_find_phrase_documents_three_word_positive_case() -> None:
+    """Three-word phrase should match when all offsets align."""
+    index = InvertedIndex(
+        postings={
+            "to": {"doc_a": Posting(frequency=1, positions=[0])},
+            "be": {"doc_a": Posting(frequency=1, positions=[1])},
+            "free": {"doc_a": Posting(frequency=1, positions=[2])},
+        },
+        doc_lengths={"doc_a": 3},
+    )
+    assert find_phrase_documents(index, "to be free") == ["doc_a"]
+
+
+def test_find_phrase_documents_unknown_term_returns_empty() -> None:
+    """Unknown phrase terms should return no matches."""
+    index = InvertedIndex(
+        postings={"known": {"doc_a": Posting(frequency=1, positions=[0])}},
+        doc_lengths={"doc_a": 1},
+    )
+    assert find_phrase_documents(index, "known unknown") == []
+
+
+def test_find_phrase_documents_multiple_docs_returns_only_true_matches() -> None:
+    """Only documents with real consecutive phrase matches should be returned."""
+    index = InvertedIndex(
+        postings={
+            "good": {
+                "doc_b": Posting(frequency=1, positions=[3]),
+                "doc_a": Posting(frequency=1, positions=[0]),
+                "doc_c": Posting(frequency=1, positions=[1]),
+            },
+            "friends": {
+                "doc_b": Posting(frequency=1, positions=[4]),
+                "doc_a": Posting(frequency=1, positions=[1]),
+                "doc_c": Posting(frequency=1, positions=[4]),
+            },
+        },
+        doc_lengths={"doc_a": 3, "doc_b": 6, "doc_c": 6},
+    )
+    assert find_phrase_documents(index, "good friends") == ["doc_a", "doc_b"]
+
+
+def test_find_phrase_documents_one_word_phrase_works() -> None:
+    """Single-word phrase should behave like single-term retrieval."""
+    index = _sample_index()
+    assert find_phrase_documents(index, "life") == ["doc_a", "doc_b"]
+
+
+def test_find_phrase_documents_normalization_case_and_punctuation() -> None:
+    """Phrase search should normalize input using tokenizer behavior."""
+    index = InvertedIndex(
+        postings={
+            "good": {"doc_a": Posting(frequency=1, positions=[0])},
+            "friends": {"doc_a": Posting(frequency=1, positions=[1])},
+        },
+        doc_lengths={"doc_a": 2},
+    )
+    assert find_phrase_documents(index, "GoOd, FRIENDS!!!") == ["doc_a"]
+
+
+def test_find_phrase_documents_repeated_term_phrase_requires_all_offsets() -> None:
+    """Repeated-term phrase should require all consecutive occurrences."""
+    index = InvertedIndex(
+        postings={
+            "no": {
+                "doc_good": Posting(frequency=3, positions=[0, 1, 2]),
+                "doc_bad": Posting(frequency=3, positions=[0, 1, 3]),
+            }
+        },
+        doc_lengths={"doc_good": 3, "doc_bad": 4},
+    )
+    assert find_phrase_documents(index, "no no no") == ["doc_good"]
+
+
+def test_find_phrase_documents_empty_like_phrases_return_empty() -> None:
+    """Empty and non-tokenizing phrase inputs should return no matches."""
+    index = _sample_index()
+    assert find_phrase_documents(index, "") == []
+    assert find_phrase_documents(index, "   ") == []
+    assert find_phrase_documents(index, "!!! ???") == []
+    assert find_phrase_documents(index, "123 456") == []
+
+
+def test_find_phrase_documents_deterministic_lexical_ordering() -> None:
+    """Phrase results should return doc IDs in lexical order."""
+    index = InvertedIndex(
+        postings={
+            "a": {
+                "doc_z": Posting(frequency=1, positions=[0]),
+                "doc_m": Posting(frequency=1, positions=[0]),
+                "doc_a": Posting(frequency=1, positions=[0]),
+            },
+            "b": {
+                "doc_z": Posting(frequency=1, positions=[1]),
+                "doc_m": Posting(frequency=1, positions=[1]),
+                "doc_a": Posting(frequency=1, positions=[1]),
+            },
+        },
+        doc_lengths={"doc_z": 2, "doc_m": 2, "doc_a": 2},
+    )
+    assert find_phrase_documents(index, "a b") == ["doc_a", "doc_m", "doc_z"]
 
