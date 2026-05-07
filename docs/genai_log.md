@@ -118,3 +118,24 @@ Did not add custom exception classes, atomic writes, compression, or schema migr
 Ran `pytest` to verify the full suite, including the new storage tests.
 ### What I learned:
 Keeping persistence schema small and explicit improves explainability, makes failure cases easier to test, and cleanly prepares future CLI `build/load` flows without extra abstraction.
+
+## Entry 6
+
+### Date:
+2026-05-07
+### Tool used:
+Cursor (Codex 5.3)
+### Task:
+Implemented Stage 5 in-memory search functions and Stage 5 search unit tests.
+### Prompt summary:
+Replace placeholder `search.py` with simple typed retrieval APIs (`get_term_postings`, `find_documents`) using tokenizer-based normalization, deterministic single-term and AND multi-term matching, plus edge-case tests.
+### AI suggestion:
+Keep Stage 5 focused on unranked in-memory lookup over `InvertedIndex`, deduplicate repeated query terms, sort doc IDs for deterministic behavior, and defer phrase search/ranking/CLI formatting to later stages.
+### What I accepted:
+Function-based search module, tokenizer-driven normalization, defensive empty/unknown handling, lexical ordering for deterministic output, and a full `tests/test_search.py` suite aligned with Stage 5 requirements.
+### What I changed/rejected:
+Did not introduce new result dataclasses, ranking hooks, phrase matching, or suggestion logic to avoid over-engineering and preserve clear module boundaries.
+### Manual checks performed:
+Ran `pytest` across the test suite after implementation.
+### What I learned:
+Using tokenizer normalization inside search keeps behavior consistent across indexing and querying while remaining simple to explain in coursework demonstration.

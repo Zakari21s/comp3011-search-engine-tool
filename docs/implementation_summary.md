@@ -42,7 +42,6 @@ Important decisions:
 ---
 
 # Pending Features
-- search logic
 - crawler integration
 - TF-IDF ranking
 
@@ -71,7 +70,7 @@ Important decisions:
 
 # Branch Status
 Current branch:
-feature/storage
+feature/search
 
 ---
 
@@ -111,3 +110,13 @@ feature/storage
 - save path handling now uses `pathlib.Path`, UTF-8 JSON output, and automatic parent directory creation
 - load path handling now provides defensive validation and clear errors for missing files, invalid JSON, missing keys, wrong top-level types, and unsupported schema versions
 - added dedicated Stage 4 unit tests for round-trips, directory creation, JSON validity, error scenarios, and dataclass reconstruction correctness
+
+---
+
+# Stage 5 Update (Search)
+- replaced the placeholder class-based search scaffold with module-level APIs: `get_term_postings(index, term_or_query)` and `find_documents(index, query)`
+- query normalization now consistently reuses `tokenize(...)` so search behavior is case-insensitive and punctuation-insensitive
+- `get_term_postings(...)` now returns postings for the first normalized token and defensively returns `{}` for empty/unknown inputs
+- `find_documents(...)` now supports deterministic unranked retrieval: single-word lookup and multi-word AND intersection with repeated-term deduplication
+- Stage 5 intentionally excludes ranking/TF-IDF, phrase search, and CLI formatting to keep separation of concerns and maintain explainable scope
+- added dedicated Stage 5 unit tests for normalization, empty/unknown handling, AND semantics, repeated terms, and deterministic ordering

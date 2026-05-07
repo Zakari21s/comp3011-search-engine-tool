@@ -1,33 +1,67 @@
-"""Query processing and retrieval orchestration."""
+"""In-memory query processing utilities over an inverted index."""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
-from indexer import InvertedIndex
-from ranking import RankedResult
+from indexer import InvertedIndex, Posting
+from tokenizer import tokenize
 
 
-@dataclass(slots=True)
-class SearchResponse:
-    """Container for search output and optional suggestion text."""
+def _normalized_query_terms(query: str) -> list[str]:
+    """Return deduplicated normalized query terms in first-seen order."""
+    terms: list[str] = []
+    seen_terms: set[str] = set()
+    for token in tokenize(query):
+        if token.term in seen_terms:
+            continue
+        seen_terms.add(token.term)
+        terms.append(token.term)
+    return terms
 
-    query: str
-    results: list[RankedResult]
-    suggestion: str | None = None
+
+def get_term_postings(index: InvertedIndex, term_or_query: str) -> dict[str, Posting]:
+    """Return postings for the first normalized query token.
+
+    Behavior:
+    - normalize input through tokenizer.tokenize
+    - return {} when no token is produced
+    - if multiple tokens exist, use only the first token
+    - return {} for unknown terms
+    """
+    tokens = tokenize(term_or_query)
+    if not tokens:
+        return {}
+
+    term = tokens[0].term
+    return index.postings.get(term, {})
 
 
-class SearchEngine:
-    """Handle query parsing, matching, phrase checks, and ranking."""
+def find_documents(index: InvertedIndex, query: str) -> list[str]:
+    """Find document IDs matching a query using unranked AND semantics.
 
-    def __init__(self, index: InvertedIndex) -> None:
-        self._index = index
+    Behavior:
+    - normalize query with tokenizer.tokenize
+    - return [] for empty/invalid queries
+    - deduplicate repeated terms
+    - single-term query returns sorted matching doc IDs
+    - multi-term query returns sorted intersection of doc IDs
+    """
+    terms = _normalized_query_terms(query)
+    if not terms:
+        return []
 
-    def find(self, query: str) -> SearchResponse:
-        """Search the index and return ranked matches."""
-        # TODO: Handle single-word queries.
-        # TODO: Handle multi-word queries and phrase search using positions.
-        # TODO: Add query suggestions for unknown terms.
-        _ = query
-        return SearchResponse(query=query, results=[], suggestion=None)
+    first_term_postings = index.postings.get(terms[0])
+    if not first_term_postings:
+        return []
+
+    matching_doc_ids = set(first_term_postings.keys())
+
+    for term in terms[1:]:
+        term_postings = index.postings.get(term)
+        if not term_postings:
+            return []
+        matching_doc_ids &= set(term_postings.keys())
+        if not matching_doc_ids:
+            return []
+
+    return sorted(matching_doc_ids)
 
