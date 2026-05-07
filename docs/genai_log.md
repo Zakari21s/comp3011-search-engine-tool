@@ -97,3 +97,24 @@ Did not add ranking, storage serialization, crawler coupling, or query logic to 
 Ran `pytest` to verify Stage 3 tests and existing suite behavior.
 ### What I learned:
 A dictionary-backed inverted index with lightweight dataclasses is simple to explain, easy to test, and provides the exact signals needed for later search, phrase matching, and TF-IDF stages.
+
+## Entry 5
+
+### Date:
+2026-05-07
+### Tool used:
+Cursor (Codex 5.3)
+### Task:
+Implemented Stage 4 storage persistence and storage unit tests.
+### Prompt summary:
+Replace the placeholder storage scaffold with module-level JSON persistence functions for `InvertedIndex`, add defensive load validation/error handling, and create tests for round-trip behavior and malformed inputs.
+### AI suggestion:
+Use a simple versioned JSON schema (`schema_version`, `postings`, `doc_lengths`, `doc_metadata`), explicit dataclass conversion helpers, `pathlib.Path` file operations with UTF-8, and focused pytest cases for both success and failure paths.
+### What I accepted:
+Function-based API (`save_index`, `load_index`), explicit `_index_to_dict`/`_index_from_dict` helpers, clear `FileNotFoundError`/`ValueError` messaging, and a dedicated `test_storage.py` suite aligned with coursework edge cases.
+### What I changed/rejected:
+Did not add custom exception classes, atomic writes, compression, or schema migration logic to keep Stage 4 scope narrow and explainable.
+### Manual checks performed:
+Ran `pytest` to verify the full suite, including the new storage tests.
+### What I learned:
+Keeping persistence schema small and explicit improves explainability, makes failure cases easier to test, and cleanly prepares future CLI `build/load` flows without extra abstraction.

@@ -42,12 +42,8 @@ Important decisions:
 ---
 
 # Pending Features
-- persistence layer
-
 - search logic
-
 - crawler integration
-
 - TF-IDF ranking
 
 ---
@@ -75,7 +71,7 @@ Important decisions:
 
 # Branch Status
 Current branch:
-feature/indexer
+feature/storage
 
 ---
 
@@ -105,3 +101,13 @@ feature/indexer
 - stores per-document length and metadata for all unique documents, including empty-content pages
 - applies deterministic document IDs (`page.url` when present, otherwise `doc_0`, `doc_1`, ...) and first-write-wins for duplicate URLs
 - added focused Stage 3 tests for empty input, postings correctness, repeated terms, multi-document terms, empty pages, duplicate URLs, fallback IDs, tokenizer integration, and metadata retention
+
+---
+
+# Stage 4 Update (Storage)
+- replaced `Storage` class scaffold with module-level APIs: `save_index(index: InvertedIndex, path: Path)` and `load_index(path: Path) -> InvertedIndex`
+- implemented explicit JSON serialization/deserialization helpers: `_index_to_dict(...)` and `_index_from_dict(...)`
+- persisted schema includes `schema_version`, `postings`, `doc_lengths`, and `doc_metadata`, with explicit conversion of `Posting` and `DocumentMetadata`
+- save path handling now uses `pathlib.Path`, UTF-8 JSON output, and automatic parent directory creation
+- load path handling now provides defensive validation and clear errors for missing files, invalid JSON, missing keys, wrong top-level types, and unsupported schema versions
+- added dedicated Stage 4 unit tests for round-trips, directory creation, JSON validity, error scenarios, and dataclass reconstruction correctness
