@@ -139,3 +139,24 @@ Did not introduce new result dataclasses, ranking hooks, phrase matching, or sug
 Ran `pytest` across the test suite after implementation.
 ### What I learned:
 Using tokenizer normalization inside search keeps behavior consistent across indexing and querying while remaining simple to explain in coursework demonstration.
+
+## Entry 7
+
+### Date:
+2026-05-07
+### Tool used:
+Cursor (Codex 5.3)
+### Task:
+Implemented Stage 6 crawler module and mocked crawler unit tests.
+### Prompt summary:
+Replace placeholder `crawler.py` with a typed module-level `crawl_quotes_site(...)` API that crawls quotes.toscrape.com sequentially, enforces 6-second politeness between live requests, follows pagination, avoids duplicate URLs, integrates with `parse_page(...)`, and handles failures defensively; add mocked tests only.
+### AI suggestion:
+Use a simple queue + visited set traversal with URL normalization (fragment removal), same-host filtering, `requests.Session` reuse with optional injection for tests, and a focused test suite that validates pagination, deduplication, error handling, and politeness behavior via monkeypatching.
+### What I accepted:
+Implemented the module-level crawler API with parser integration and defensive request handling, plus a dedicated mocked `test_crawler.py` covering required Stage 6 scenarios including delay behavior.
+### What I changed/rejected:
+Did not add retries, robots.txt handling, concurrency, or crawler-specific result dataclasses to keep Stage 6 explainable and within coursework scope.
+### Manual checks performed:
+Ran `pytest` after implementation to verify crawler tests and full suite behavior.
+### What I learned:
+Keeping crawler logic transport-focused and parser/indexer boundaries explicit makes the build pipeline easy to explain while still supporting robust, testable crawling behavior.

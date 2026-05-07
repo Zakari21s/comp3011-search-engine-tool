@@ -42,7 +42,6 @@ Important decisions:
 ---
 
 # Pending Features
-- crawler integration
 - TF-IDF ranking
 
 ---
@@ -70,7 +69,7 @@ Important decisions:
 
 # Branch Status
 Current branch:
-feature/search
+feature/crawler
 
 ---
 
@@ -120,3 +119,13 @@ feature/search
 - `find_documents(...)` now supports deterministic unranked retrieval: single-word lookup and multi-word AND intersection with repeated-term deduplication
 - Stage 5 intentionally excludes ranking/TF-IDF, phrase search, and CLI formatting to keep separation of concerns and maintain explainable scope
 - added dedicated Stage 5 unit tests for normalization, empty/unknown handling, AND semantics, repeated terms, and deterministic ordering
+
+---
+
+# Stage 6 Update (Crawler)
+- replaced placeholder crawler scaffold with module-level API `crawl_quotes_site(...) -> list[ParsedPage]`
+- crawler now uses `requests.Session` (with optional injected test session), sequential queue-based traversal, same-host enforcement, and visited URL deduplication
+- added URL normalization that removes fragments and pagination discovery using `li.next > a[href]` with `urljoin(...)`
+- integrated parser handoff via `parse_page(response.text, url=current_url)` so crawler output is ready for `build_index(...)`
+- implemented coursework politeness enforcement with default 6-second delay between live requests using `time.monotonic()` and `time.sleep(...)`, while allowing `delay_seconds=0` for tests
+- added dedicated mocked crawler tests for pagination flow, deduplication, same-host behavior, non-200/exception handling, politeness timing behavior, and parser integration
